@@ -1,7 +1,7 @@
 A.nnotate Client
 ================
 
-Client PHP code for interacting with the A.nnotate (v3) software
+Client PHP code for interacting with the [A.nnotate](http://a.nnotate.com/ "A.nnotate Home Page") software
 
 
 Contributors
