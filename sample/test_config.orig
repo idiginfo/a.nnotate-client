@@ -1,0 +1,42 @@
+<?php
+
+//
+// Store the keys for the API user.
+// (see your account page for details)
+//
+
+$apiuser = "user@yourcompany.com";
+$apikey = "iMMbpfKyRPm5s3n8zayr8RPT8chhLZvk";
+
+
+// 
+// Point to the local annotate installation.
+// Don't include a trailing "/" in the path.
+//
+$annotateServer = "http://localhost/annotate";
+
+
+// The sample annotate user.
+$sampleUser = "joe@example.com";
+$sampleSig = "joe";
+
+// Another sample user.
+$sampleUser2 = "jill@example.com";
+$sampleSig2 = "jill";
+
+// Sample document date / code:
+// *** Replace these with the values returned after uploading a document ***
+$sampleDate = "2008-07-15";
+$sampleCode = "jIKdZcO2";
+
+
+// Configure CURL for doing POST
+$curl = "/usr/bin/curl";
+
+// For win32, uncomment the lines below:
+// $curl = "\"./win32/curl.exe\"";
+// $win32exe = 1;
+
+$samplePdfFile = "welcome.pdf";
+
+?>

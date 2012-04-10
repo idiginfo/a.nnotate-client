@@ -1,0 +1,354 @@
+<html>
+<head>
+<style>
+html, body, table {
+  font-family: Verdana, helvetica, sans-serif;
+  font-size: 10pt;
+}
+body {
+  margin:3em;
+}
+</style>
+</head>
+
+<body>
+
+<h2>A.nnotate API samples / test routines</h2>
+
+<p>
+This directory includes some sample code for calling the
+<a href='http://a.nnotate.com/api.html'>A.nnotate API</a>.  The sample code is fairly basic and intended
+to demonstrate the process of calling the web APIs; writing equivalents
+in languages other than PHP should be straightforward.
+<i>(for Java programmers: There is a basic example for Java too: 
+ the <code>java/</code> subdirectory includes a sample 
+<code><a href='java/AnnotateApi.java'>AnnotateApi.java</a></code>
+for signing an A.nnotate API request from Java and parsing the JSON 
+response.)</i>
+</p>
+
+
+<h3>1. Configuration file</h3>
+
+<p>
+You need to create a configuration file: <b>test_config.php</b> file before running 
+any of the tests. A sample is provided in 'test_config.orig' so first of all:
+</p>
+
+<pre>
+  cp test_config.orig test_config.php
+  vi test_config.php   # or your preferred text editor...
+</pre>
+
+<p>
+ The <b>apiuser</b> should be set to the email of the
+admin user of your a.nnotate installation, and the <b>apikey</b>
+is displayed at the bottom of the apiuser's a.nnotate account page.
+(if you don't see the apikey on your account page, check
+that the setting <code>$enableapi = 1; </code> is present
+in your php/config.tmp file).
+ You can change the
+<b>sampleDate</b> and <b>sampleCode</b> once you have uploaded
+a document, as they are used in the later tests.
+</p>
+
+<pre>
+  $apiuser = "you@yoursite.com";
+  $apikey = "iMMbpfKyRPm5s3n8zayr8RPT8chhLZvk";
+
+  $annotateServer = "http://localhost/annotate";
+
+  // The sample annotate user.
+  $sampleUser = "joe@example.com";
+  $sampleSig = "joe";
+
+  // Another sample user.
+  $sampleUser2 = "jill@example.com";
+  $sampleSig2 = "jill";
+
+  // Sample document date / code:
+  // *** Replace these with the values returned after uploading a document ***
+  $sampleDate = "2008-07-15";
+  $sampleCode = "jIKdZcO2";
+</pre>
+
+
+
+<h3>2. List of files</h3>
+
+
+<pre>
+# Configuration settings
+  # <b>Important: Edit this before running any tests</b>
+  test_config.php
+
+# Utility functions
+  HMAC.php        --- Crypt_HMAC class to calculate hashes for signing requests
+  JSON.php        --- json_encode and json_decode functions
+  annotateApi.php --- signRequest() function for signing API requests
+
+# HTML samples (view these in browser)
+  html_uploadDocument.php      --- upload a document
+  html_updateDocumentMeta.php  --- edit document level notes / tags / title
+  html_viewSample.php          --- view a document
+  html_addNote.php             --- add a note
+  html_loginAs.php             --- login as a given A.nnotate user
+  html_error.php               --- display an error message
+
+# Test PHP samples (run from command line)
+  test_createAccount.php   --- create an A.nnotate account via API
+  test_updateAccount.php   --- change account settings
+  test_authorizeReader.php --- allow a given user to view a document
+  test_deleteDocument.php  --- delete a document
+
+  test_listDocuments.php   --- display a list of documents {+metadata/notes} for a user
+  test_listFolders.php     --- list folders for a user
+  test_listNotes.php       --- list notes for a document
+  test_listUsers.php       --- list user accounts
+
+  test_shareFolders.php    --- create and share folders
+</pre>
+
+<p>
+  The test scripts all include the <b>annotateApi.php</b> utility functions
+  which includes the definition of <b>signRequest()</b>, used to add
+  a hash code to authenticate API requests.
+</p>
+
+<p>
+  You may find it useful to check the Amazon S3 Web Services sample code
+  for equivalent libraries in other languages (Java / ASP etc), as the
+  authentication mechanism used for the A.nnotate API is similar
+  to that used for S3.
+</p>
+
+<p>
+The samples starting <b>test_...</b> are intended to be run
+from the command line. The samples starting <b>html_...</b> are
+intended to be viewed in a browser.
+</p>
+
+
+
+<h3>3. Creating a.nnotate accounts using the API</h3>
+
+<p>
+From the command line...
+</p>
+<pre>
+  php test_createAccount.php
+      --- creates new accounts for the two sample users specified in 'test_config.php'
+</pre>
+
+<p>
+Accounts are initially created as 'annotators' - to license them
+to upload documents, you need to call <b>updateAccount.php</b>.
+This can also be used to change the short signature used to sign notes, 
+and the user's a.nnotate password.
+</p>
+
+<pre>
+  php test_updateAccount.php
+</pre>
+
+<p>
+You can check that the accounts have been added by viewing your
+server admin page (php/serverAdmin.php in your installation, 
+there's a link from your account page too when logged in as the admin
+user).
+</p>
+
+
+<h3>4. Login as a given user and view list of documents</h3>
+
+<p>
+You can use the API to create links from your web application
+to log users in to their a.nnotate account automatically.
+This can be useful if you already have your own user authentication
+system and do not want users to have to log in separately to A.nnotate.
+The <b>html_loginAs.php</b> sample lets you authenticate as a particular user and
+then display the list of documents, notes, or a particular document.
+Login as sample users with the link: <a href='html_loginAs.php' target='_blank'>html_loginAs.php</a>
+</p>
+
+
+
+<h3>5. Upload a document to a user account</h3>
+
+<p>
+  Open the browser at <a target='_blank' href='html_uploadDocument.php'>html_uploadDocument.php</a>
+  and browse for a PDF document to try uploading. It should display a message like <code>OK 2008-01-01 abc123</code>. You could use the return values to set the <b>$sampleDate</b> and <b>$sampleCode</b> values  
+in the test_config.php file to the uploaded document.
+</p>
+
+
+<h3>6. View the sample document</h3>
+
+<p>
+  Once you've edited the $sampleCode and $sampleDate settings in your test_config.php,
+  you can point the browser at <a target='_blank' href='html_viewSample.php'>html_viewSample.php</a>
+  to make a public link to the document.
+</p>
+
+
+<h3>7. Adding a note using the API</h3>
+
+<p>
+  The <a target='_blank' href='html_addNote.php'>html_addNote.php</a> sample 
+  lets you add notes to PDF documents using the API. It uses a HTTP POST 
+  with a number of parameters (note text, where it is attached etc).
+  After adding a note, you might want to <a target='_blank' href='html_viewSample.php'>html_viewSample.php</a>
+  again and press 'reload' to see it.
+</p>
+
+
+<h3>8. Editing a document's metadata using the API</h3>
+
+<p>
+  The <a target='_blank' href='html_updateDocumentMeta.php'>html_updateDocumentMeta.php</a> sample 
+  lets you edit the document's metadata (title, tags, notes, authors). It uses a HTTP POST.
+  The values you set will overwrite any previous values. After saving the metadata, you may wish to 
+ <a target='_blank' href='html_viewSample.php'>html_viewSample.php</a> and use the <b>Tools &gt; properties</b>
+menu to check that the metadata has been updated.  This call can also be used to set 
+annotation permissions on a document, to restrict to particular users or pages.
+</p>
+
+
+
+<h3>9. Extracting a user's list of documents in structured form</h3>
+
+<p>
+The <b>test_listDocuments.php</b> sample lists the documents for a given
+user, returned as a JSON array. The parameters are the start / end month, 
+and you can choose whether to return the extended document level metadata
+and notes along with the basic date / code / name. Run this sample (and all
+the test_... samples) from the command line:
+</p>
+
+<pre>
+  php test_listDocuments.php
+</pre>
+
+
+
+<h3>10. Extracting the list of notes on a document</h3>
+
+<p>
+You can fetch the notes on a single document using <b>test_listNotes.php</b>.
+It returns a JSON array which includes the document metadata as well as the notes.
+</p>
+
+<pre>
+  php test_listNotes.php
+</pre>
+
+
+<h3>11. Listing user accounts</h3>
+<p>
+ <b>test_listUsers.php</b> lists the email addresses of the a.nnotate
+accounts you administer. The return value is a JSON object with 
+two array fields "members" and "annotators", both arrays of email addresses.
+</p>
+
+<pre>
+  php test_listUsers.php
+</pre>
+
+<h3>12. Authorizing a user to view a document</h3>
+<p>
+ <b>test_authorizeReader.php</b> adds a given document to a
+user's documents list. Note that you can also simply send the 
+user a link to the document like that in <a target='_blank' href='html_viewSample.php'>html_viewSample.php</a>;
+in that case the document would only get added to the user's list if/when they click on the link.
+</p>
+
+<pre>
+  php test_authorizeReader.php
+</pre>
+
+
+<h3>13. Deleting a document</h3>
+
+<p>
+The <b>test_deleteDocument.php</b> sample shows how to remove 
+a document from a user's list.
+</p>
+
+<pre>
+  # you may want to wait until you've run the other tests
+  # before deleting the sample document...
+  php test_deleteDocument.php
+</pre>
+
+<h2>Folder operations</h2>
+
+<h3>1. Creating a folder</h3>
+
+<p>
+View <a target='_blank' href='html_createFolder.php'>html_createFolder.php</a> to create
+ a new folder in the test user's account.
+</p>
+
+<h3>2. Listing folders</h3>
+<p>
+You can list a user's folders as a JSON object using:
+</p>
+
+<pre>
+  php test_listFolders.php
+</pre>
+
+
+<h3>3. Deleting a folder</h3>
+
+<p>
+View <a target='_blank' href='html_deleteFolder.php'>html_deleteFolder.php</a> to 
+delete a folder given its ID.
+</p>
+
+<h3>4. Moving a document to a folder</h3>
+
+<p>
+View <a target='_blank' href='html_moveDocument.php'>html_moveDocument.php</a> to 
+move a document to a given folder id.
+</p>
+
+<h3>5. Moving a folder</h3>
+
+<p>
+View <a target='_blank' href='html_moveFolder.php'>html_moveFolder.php</a> to 
+move a folder to a given folder id.
+</p>
+
+<h3>6. Setting the available note tags for a folder</h3>
+
+<p>
+View <a target='_blank' href='html_setFolderTags.php'>html_setFolderTags.php</a> to 
+set the list of available note tags for a folder.
+</p>
+
+
+<h3>7. Getting the available note tags for a folder</h3>
+
+<p>
+View <a target='_blank' href='html_getFolderTags.php'>html_getFolderTags.php</a> to 
+get the list of available note tags for a folder.
+</p>
+
+<h3>8. Renaming a folder</h3>
+
+<p>
+View <a target='_blank' href='html_renameFolder.php'>html_renameFolder.php</a> to 
+rename a folder.
+</p>
+
+<h3>9. Sharing a folder</h3>
+
+<p>
+Run <tt>php test_shareFolder.php</tt> from the command line to create a folder and
+share it with another test user.
+</p>
+
+</body>
+
+</html>

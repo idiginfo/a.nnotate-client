@@ -1,0 +1,18 @@
+titlebar: Sample list of sentences
+This is a sentence
+And this is another
+
+section: Section 1 
+A sentence on section 1
+And another one
+
+section: Section 1.1
+Here is a nested sentence
+And another nested sentence
+end section
+
+section: Section 2
+end section
+
+section: Section 3
+end section
