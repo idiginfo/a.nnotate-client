@@ -32,8 +32,10 @@ function main() {
   
   //Build Client Object
   $aclient = new AnnotateClient(new HttpClient(), $api_url, $api_user, $api_key);  
+    
+  //Test - List Notes
+  $noteCount = 0;
   
-  //Test - List Users
   $users = $aclient->request('listUsers');
   foreach($users->members as $user) {
     
@@ -42,10 +44,13 @@ function main() {
       
       $docinfo = $aclient->request('listNotes', array('d' => $doc->date, 'c' => $doc->code, $user));
       echo json_format(json_encode($docinfo));
+      $noteCount++;
     }
     
     echo "\n\n============================================================\n\n";
   }
+  
+  echo "\nNote Count: {$noteCount}\n\n";  
 }
 
 // ---------------------------------------------------------------------------
