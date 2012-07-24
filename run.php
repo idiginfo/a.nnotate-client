@@ -39,23 +39,20 @@ function main() {
 
     //Test - List Notes
     $noteCount = 0;
-
+    $noteList = array();
     $users = $aclient->request('listUsers');
     foreach($users->members as $user) {
-
       $docs = $aclient->request('listDocuments', array(), $user);    
       foreach($docs[0] as $doc) {
 
           $docinfo = $aclient->request('listNotes', array('d' => $doc->date, 'c' => $doc->code, $user));
-          echo json_format(json_encode($docinfo));
+          $noteList[] = $docinfo;
           $noteCount++;
       }
-
-      echo "\n\n============================================================\n\n";
     }
-
-    echo "\nNote Count: {$noteCount}\n\n";  
-
+    
+    echo json_format(json_encode($noteList));    
+    
     if (php_sapi_name() != 'cli') {
        echo "</pre>";
     }  
